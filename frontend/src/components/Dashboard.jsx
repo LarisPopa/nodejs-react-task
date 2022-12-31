@@ -39,7 +39,6 @@ const Dashboard = () => {
       );
       if (result) setTasks(result);
     } catch (err) {
-      console.log("eeee", err);
       console.error(err);
     }
   };
