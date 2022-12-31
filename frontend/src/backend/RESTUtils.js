@@ -1,6 +1,12 @@
 import Axios from "axios";
 const BASE_URL = "http://localhost:4000";
 
+export const logOut = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("email");
+  window.location = "/";
+};
+
 export const http = Axios.create({
   withCredentials: false,
   timeout: 60000,
@@ -32,6 +38,18 @@ http.interceptors.request.use(
   },
   (error) => {
     Promise.reject(error);
+  }
+);
+http.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && 401 === error.response.status) {
+      logOut();
+    } else {
+      return Promise.reject(error);
+    }
   }
 );
 

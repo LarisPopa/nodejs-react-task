@@ -37,8 +37,9 @@ const Dashboard = () => {
         searchText,
         selectedStatus
       );
-      setTasks(result);
+      if (result) setTasks(result);
     } catch (err) {
+      console.log("eeee", err);
       console.error(err);
     }
   };
@@ -84,13 +85,13 @@ const Dashboard = () => {
         </Col>
       </Row>
       <Row>
-        <Col xs={1}>
+        <Col xs={2}>
           <Button
             variant="primary"
             className="mb-2"
             onClick={() => setTaskModal(true)}
           >
-            Add Task
+            Add New Task
           </Button>
           <ModalComponent
             show={taskModal}
@@ -105,7 +106,7 @@ const Dashboard = () => {
             }
           />
         </Col>
-        <Col xs={8}>
+        <Col xs={7}>
           <Form.Control
             placeholder={"Search by name or description"}
             value={searchText}
@@ -123,9 +124,6 @@ const Dashboard = () => {
       <Row>
         <Col className="text-center">
           <Row>
-            <Col xs={1}>
-              <strong>Id </strong>
-            </Col>
             <Col xs={2}>
               <strong>Name</strong>
               <i
@@ -245,7 +243,6 @@ const Dashboard = () => {
           {tasks.map((task, index) => {
             return (
               <Row key={index} className="mt-2">
-                <Col xs={1}>{task._id}</Col>
                 <Col xs={2}>{task.name}</Col>
                 <Col xs={2}>{task.description}</Col>
                 <Col xs={2}> {new Date(task.dueDate).toDateString()}</Col>
@@ -254,6 +251,7 @@ const Dashboard = () => {
                   <div>
                     {task.status !== "Done" && task.status !== "Failed" && (
                       <DropDownComponent
+                        defaultValue={task.status}
                         dropdownDefaulText="Status"
                         data={statuses.filter(
                           (status) => status.value !== "ALL"
