@@ -1,13 +1,16 @@
 import Axios from "axios";
+import jwt_decode from "jwt-decode";
+
 const BASE_URL = "http://localhost:4000";
 
 export const logOut = () => {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem("email");
   window.location = "/";
 };
 
-export const http = Axios.create({
+export const axiosInstance = Axios.create({
   withCredentials: false,
   timeout: 60000,
   params: {},
@@ -20,27 +23,35 @@ export const getEmail = () => {
 export const getAccessToken = () => {
   return localStorage.getItem("accessToken");
 };
-export const removeEamil = () => {
-  return localStorage.removeItem("email");
+export const getRefreshToken = () => {
+  return localStorage.getItem("refreshToken");
 };
 
-export const removeAccessToken = () => {
-  return localStorage.removeItem("accessToken");
-};
-
-http.interceptors.request.use(
-  async (config) => {
+axiosInstance.interceptors.request.use(
+  async (req) => {
     const token = getAccessToken();
+    const refreshToken = getRefreshToken();
+
     if (token) {
-      config.headers.Authorization = token;
+      req.headers.Authorization = token;
+
+      const user = jwt_decode(token);
+      const isExpired = user.exp * 1000 < Date.now();
+      if (!isExpired) return req;
+
+      const response = await Axios.post(`${BASE_URL}/user/token/refresh`, {
+        refreshToken: refreshToken,
+      });
+      localStorage.setItem("accessToken", response.data.accessToken);
+      req.headers.Authorization = response.data.accessToken;
     }
-    return config;
+    return req;
   },
   (error) => {
     Promise.reject(error);
   }
 );
-http.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -55,7 +66,7 @@ http.interceptors.response.use(
 
 export const doPost = async (url, data) => {
   try {
-    const result = await http.post(BASE_URL + url, data);
+    const result = await axiosInstance.post(BASE_URL + url, data);
     if (result) return result.data;
     return null;
   } catch (error) {
@@ -65,7 +76,7 @@ export const doPost = async (url, data) => {
 
 export const doGet = async (url, config) => {
   try {
-    const result = await http.get(BASE_URL + url, config);
+    const result = await axiosInstance.get(BASE_URL + url, config);
     if (result) return result.data;
     return null;
   } catch (error) {
@@ -75,7 +86,7 @@ export const doGet = async (url, config) => {
 
 export const doPut = async (url, body, config) => {
   try {
-    const result = await http.put(BASE_URL + url, body, config);
+    const result = await axiosInstance.put(BASE_URL + url, body, config);
     if (result) return result.data;
     return null;
   } catch (error) {

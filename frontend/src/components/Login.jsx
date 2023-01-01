@@ -21,8 +21,8 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const result = await loginService(email, password);
-      localStorage.setItem("email", result.email);
       localStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
       setError("");
       history.push("/dashboard");
     } catch (err) {

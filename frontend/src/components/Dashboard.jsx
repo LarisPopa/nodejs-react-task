@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { editTaskService, getTasksService } from "../backend/TasksService";
 import { Row, Col, Button, Form } from "react-bootstrap";
-import { getEmail, removeAccessToken, removeEamil } from "../backend/RESTUtils";
-import { useHistory } from "react-router-dom";
+import { getEmail, logOut } from "../backend/RESTUtils";
 import ModalComponent from "./basic/ModalComponent";
 import Task from "./Task";
 import DropDownComponent from "./basic/DropDownComponent";
+import { logOutService } from "../backend/UserService";
 
 const Dashboard = () => {
-  const history = useHistory();
-
   const [tasks, setTasks] = useState([]);
   const [taskModal, setTaskModal] = useState(false);
   const [refresh, setRefresh] = useState(false);
@@ -55,10 +53,13 @@ const Dashboard = () => {
     selectedStatus,
   ]);
 
-  const handleLogout = () => {
-    removeAccessToken();
-    removeEamil();
-    history.push("/");
+  const handleLogout = async () => {
+    try {
+      await logOutService();
+      logOut();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const refreshTasks = () => {

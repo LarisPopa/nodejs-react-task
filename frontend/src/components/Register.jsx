@@ -15,6 +15,7 @@ const Register = () => {
       const result = await registerService(email, password);
       localStorage.setItem("email", result.email);
       localStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
       setError("");
       history.push("/dashboard");
     } catch (err) {

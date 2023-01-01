@@ -77,6 +77,7 @@ const login = async (req, res) => {
       email: user.email,
     });
   } catch (err) {
+    console.log("eee", err);
     console.error(err);
   }
 };
